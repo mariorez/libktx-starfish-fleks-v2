@@ -3,6 +3,8 @@ package dev.mariorez.screen
 import com.badlogic.gdx.Input.Keys
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Sprite
+import com.badlogic.gdx.maps.tiled.TiledMap
+import com.badlogic.gdx.maps.tiled.renderers.OrthoCachedTiledMapRenderer
 import com.github.quillraven.fleks.Entity
 import com.github.quillraven.fleks.world
 import dev.mariorez.Action
@@ -11,6 +13,7 @@ import dev.mariorez.Action.LEFT
 import dev.mariorez.Action.RIGHT
 import dev.mariorez.Action.UP
 import dev.mariorez.BaseScreen
+import dev.mariorez.Sizes
 import dev.mariorez.component.Player
 import dev.mariorez.component.Render
 import dev.mariorez.component.Transform
@@ -19,17 +22,26 @@ import dev.mariorez.system.MovementSystem
 import dev.mariorez.system.RenderSystem
 import ktx.assets.async.AssetStorage
 import ktx.assets.disposeSafely
+import ktx.tiled.totalHeight
+import ktx.tiled.totalWidth
 import kotlin.properties.Delegates
 
 class FirstScreen(
+    private val sizes: Sizes,
     private val assets: AssetStorage
-) : BaseScreen() {
-
+) : BaseScreen(sizes) {
+    private val tiledMap = assets.get<TiledMap>("map.tmx")
+    private val mapRenderer = OrthoCachedTiledMapRenderer(tiledMap).apply { setBlending(true) }
     private var player: Entity by Delegates.notNull()
     private val world = world {
         injectables {
             add(batch)
             add(camera)
+            add(mapRenderer)
+            add(sizes.apply {
+                worldWidth = tiledMap.totalWidth().toFloat()
+                worldHeight = tiledMap.totalHeight().toFloat()
+            })
         }
 
         systems {
@@ -51,6 +63,7 @@ class FirstScreen(
 
     override fun dispose() {
         super.dispose()
+        mapRenderer.dispose()
         world.dispose()
         assets.disposeSafely()
     }

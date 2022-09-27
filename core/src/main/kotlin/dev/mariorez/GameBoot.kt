@@ -4,6 +4,8 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.Texture.TextureFilter.Linear
+import com.badlogic.gdx.maps.tiled.TiledMap
+import com.badlogic.gdx.maps.tiled.TmxMapLoader
 import dev.mariorez.screen.FirstScreen
 import ktx.app.KtxGame
 import ktx.app.KtxInputAdapter
@@ -14,11 +16,10 @@ import ktx.async.KtxAsync
 class GameBoot : KtxGame<KtxScreen>() {
 
     private val assets = AssetStorage()
-
-    companion object {
-        const val WINDOW_HEIGHT = 560f
-        const val WINDOW_WIDTH = 960f
-    }
+    private val sizes = Sizes(
+        windowWidth = 960f,
+        windowHeight = 540f
+    )
 
     override fun create() {
         Gdx.input.inputProcessor = InputMultiplexer(object : KtxInputAdapter {
@@ -46,10 +47,12 @@ class GameBoot : KtxGame<KtxScreen>() {
         KtxAsync.initiate()
 
         assets.apply {
+            setLoader<TiledMap> { TmxMapLoader(fileResolver) }
             loadSync<Texture>("turtle.png").setFilter(Linear, Linear)
+            loadSync<TiledMap>("map.tmx")
         }
 
-        addScreen(FirstScreen(assets))
+        addScreen(FirstScreen(sizes, assets))
         setScreen<FirstScreen>()
     }
 }

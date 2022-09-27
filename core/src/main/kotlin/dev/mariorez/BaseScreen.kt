@@ -10,18 +10,18 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.viewport.FitViewport
 import dev.mariorez.Action.EXIT_FULLSCREEN
 import dev.mariorez.Action.FULLSCREEN
-import dev.mariorez.GameBoot.Companion.WINDOW_HEIGHT
-import dev.mariorez.GameBoot.Companion.WINDOW_WIDTH
 import ktx.app.KtxScreen
 import ktx.assets.disposeSafely
 
-abstract class BaseScreen : KtxScreen {
+abstract class BaseScreen(
+    private val sizes: Sizes
+) : KtxScreen {
 
     protected val batch = SpriteBatch()
     protected val camera = OrthographicCamera().apply {
-        setToOrtho(false, WINDOW_WIDTH, WINDOW_HEIGHT)
+        setToOrtho(false, sizes.windowWidth, sizes.windowHeight)
     }
-    protected val hudStage = Stage(FitViewport(WINDOW_WIDTH, WINDOW_HEIGHT), batch)
+    protected val hudStage = Stage(FitViewport(sizes.windowWidth, sizes.windowHeight), batch)
     val actionMap = mutableMapOf<Int, Action>()
 
     init {
@@ -34,7 +34,7 @@ abstract class BaseScreen : KtxScreen {
         if (action.starting) {
             when (action) {
                 FULLSCREEN -> Gdx.graphics.setFullscreenMode(Gdx.graphics.displayMode)
-                EXIT_FULLSCREEN -> Gdx.graphics.setWindowedMode(WINDOW_WIDTH.toInt(), WINDOW_HEIGHT.toInt())
+                EXIT_FULLSCREEN -> Gdx.graphics.setWindowedMode(sizes.windowWidth.toInt(), sizes.windowHeight.toInt())
                 else -> {}
             }
         }
